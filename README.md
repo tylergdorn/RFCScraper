@@ -1,7 +1,7 @@
 # RFCScraper
 
 RFCScraper is a tool written in golang that lets you download as many RFC's published on the <a href="https://www.ietf.org/standards/rfcs/">IEFT website</a>
-It is a rewrite of a previous tool I wrote to do the same thing but in python, and not multithreaded (go makes this very easy to)
+It is a rewrite of a previous tool I wrote to do the same thing but in python, and not multithreaded (go makes this very easy to do)
 
 You can also view one printed to the console
 
