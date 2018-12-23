@@ -4,13 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 )
 
 func main() {
@@ -25,20 +23,21 @@ func main() {
 }
 
 // downloads a rfc corresponding to the number provided
-func download(number int) {
+func download(number int) error {
 	content, err := getRFC(number)
 	// get the response
 	if err != nil {
-		fmt.Println(err)
+		return err
 	} else {
 		// if it's not an error, make the directory and write out the file
 		_ = os.Mkdir("./rfc", 0777)
 		file, err := os.Create("./rfc/" + strconv.Itoa(number))
 		if err != nil {
-			panic(err)
+			return err
 		}
 		defer file.Close()
 		file.Write([]byte(content))
+		return nil
 	}
 }
 
@@ -82,17 +81,28 @@ func getRFC(number int) (string, error) {
 
 func downloadRange(start int, end int) {
 	i := start
+	numDownloads := end - start
 	var waitGroup sync.WaitGroup
-	waitGroup.Add(end - start)
+	waitGroup.Add(numDownloads)
+	errch := make(chan error, numDownloads)
 	for i < end {
-		fmt.Println(i)
 		go func(w *sync.WaitGroup) {
-			r := rand.Intn(10)
-			time.Sleep(time.Duration(r) * time.Microsecond)
-			download(i)
-			w.Done()
+			// r := rand.Intn(10)
+			// time.Sleep(time.Duration(r) * time.Microsecond)
+			err := download(i)
+			if err != nil {
+				errch <- err
+			}
+			errch <- nil
+			defer w.Done()
 		}(&waitGroup)
 		i++
 	}
 	waitGroup.Wait()
+	for i := start; i < numDownloads; i++ {
+		err := <-errch
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 }
