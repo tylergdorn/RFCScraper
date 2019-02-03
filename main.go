@@ -18,8 +18,8 @@ func main() {
 	if len(os.Args) == 1 {
 		fmt.Println("Usage: RFCScraper [start] [end] where start and end are valid RFCs")
 		fmt.Println("Example: RFCScraper 100 120")
-		fmt.Println("You can also use -view to view one RFC")
-		fmt.Println("Example: RFCScraper -view 1000")
+		fmt.Println("You can also use --view to view one RFC")
+		fmt.Println("Example: RFCScraper --view 1000")
 		os.Exit(0)
 	}
 	if *viewFlag {
@@ -53,17 +53,16 @@ func download(number int) error {
 	// get the response
 	if err != nil {
 		return err
-	} else {
-		// if it's not an error, make the directory and write out the file
-		_ = os.Mkdir("./rfc", 0777)
-		file, err := os.Create("./rfc/" + strconv.Itoa(number) + ".txt")
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-		file.Write([]byte(content))
-		return nil
 	}
+	// if it's not an error, make the directory and write out the file
+	_ = os.Mkdir("./rfc", 0777)
+	file, err := os.Create("./rfc/" + strconv.Itoa(number) + ".txt")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	file.Write([]byte(content))
+	return nil
 }
 
 // prints an rfc out to console
