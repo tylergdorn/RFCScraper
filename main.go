@@ -115,12 +115,13 @@ func downloadRange(start int, end int) {
 	for i <= end {
 		// spawn goroutines for each file
 		go func(w *sync.WaitGroup, number int) {
+			defer w.Done()
 			err := download(number)
 			if err != nil {
 				errch <- err
+			} else {
+				errch <- nil
 			}
-			errch <- nil
-			defer w.Done()
 		}(&waitGroup, i)
 		i++
 	}
